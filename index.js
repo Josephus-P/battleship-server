@@ -7,6 +7,7 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http);
 
 const users = {};
+const onlineUsers = [];
 const chatHistory = [];
 
 app.get('/', (req, res) => {
@@ -20,8 +21,12 @@ io.on('connection', socket => {
     socket.join('public', () => {
       users[username] = { socketID: socket.id };
 
+      onlineUsers.push(username);
+
+      console.log('online: ', onlineUsers);
       console.log(users);
       socket.to('public').emit('new user connected', username);
+      io.to(`${socket.id}`).emit('update online user list', onlineUsers);
     });
   });
 
